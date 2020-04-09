@@ -3,11 +3,12 @@ import { View, Text, StyleSheet, Switch } from 'react-native';
 import { HeaderButtons, Item } from 'react-navigation-header-buttons';
 import HeaderButton from '../components/HeaderButton';
 import Colors from '../constants/Color';
+import { useDispatch } from 'react-redux';
+import { setFilters } from '../store/actions/MealsAction';
 
 const FilterSwitch = props => {
 
     return (
-
         <View style={styles.filterContainer}>
             <Text>{props.label}</Text>
             <Switch trackColor={{ true: Colors.primaryColor }}
@@ -22,10 +23,13 @@ const FilterSwitch = props => {
 
 const FilterScreen = props => {
     const { navigation } = props;
+
     const [isGlutenFree, setIsGlutenFree] = useState(false);
     const [isLactoseFree, setIsLactoseFree] = useState(false);
     const [vegan, setVegan] = useState(false);
     const [isVegetarian, setIsVegetarian] = useState(false);
+
+    const dispatch = useDispatch();
 
     const saveFilters = useCallback(() => {
         const appliedFilters = {
@@ -35,11 +39,11 @@ const FilterScreen = props => {
             vegetarian: isVegetarian
 
         };
-
-    }, [isGlutenFree, isLactoseFree, vegan, isVegetarian]);// callback take second argument as array for dependency that lead us to re-create function
+        dispatch(setFilters(appliedFilters));
+    }, [isGlutenFree, isLactoseFree, vegan, isVegetarian, dispatch]);// callback take second argument as array for dependency that lead us to re-create function
 
     useEffect(() => {
-        saveFilters, navigation.setParams({ save: saveFilters });
+        navigation.setParams({ save: saveFilters });
 
     }, [saveFilters]); //This is dependency when changes in savefilters then rebuild the component.
 
@@ -48,7 +52,9 @@ const FilterScreen = props => {
 
         <View style={styles.screen}>
             <Text style={styles.title}>Available Filters/Restrictions</Text>
-            <FilterSwitch label='Gluten-free' state={isGlutenFree}
+            <FilterSwitch
+                label='Gluten-free'
+                state={isGlutenFree}
                 onChange={(newValue => setIsGlutenFree(newValue))} />
 
             <FilterSwitch label='Lactose-free' state={isLactoseFree}
@@ -96,7 +102,7 @@ FilterScreen.navigationOptions = navData => {
 const styles = StyleSheet.create({
     screen: {
         flex: 1,
-        alignContent: "center"
+        alignItems: "center"
     },
 
     filterContainer: {
